@@ -92,10 +92,16 @@ O Sock Shop é um e-commerce especializado na venda de meias de alta qualidade. 
 ---
 
 #### 3.1.3 Identidade
+##### 3.1.3.1 Cadastro
+| ID | Título | Descrição |
+| :--- | :--- | :--- |
+| **RF-CAD-01** | Registro | O usuário deve poder se cadastrar fornecendo: Nome, Sobrenome, Email e Senha. |
+
+##### 3.1.3.1 Login
 
 | ID | Título | Descrição |
 | :--- | :--- | :--- |
-| **RF-IDEN-01** | Login e Registro | O usuário deve poder se cadastrar fornecendo: Nome, Sobrenome, Email e Senha. O login também deve retornar um Token (JWT ou Session ID) que autentica as chamadas subsequentes para os microsserviços de Pedido e Pagamento. |
+| **RF-LOG-01** | Login | O usuário deve poder se logar no sistema. O login deve retornar um Token (JWT ou Session ID) que autentica as chamadas subsequentes para os microsserviços de Pedido e Pagamento. |
 
 ---
 
@@ -122,7 +128,7 @@ O Sock Shop é um e-commerce especializado na venda de meias de alta qualidade. 
 | :--- | :--- | :--- |
 | **RN-CTG-01** | Visibilidade de Estoque | O catálogo pode exibir produtos sem estoque, mas o botão "Adicionar ao Carrinho" deve estar desabilitado ou o produto deve conter uma tag visual "Sold Out".|
 | **RN-CTG-02** |Integridade de Preço | O preço exibido na listagem (Home) deve ser idêntico ao preço na página de detalhes. Divergências visuais são consideradas defeito crítico. |
-| **RN-CTG-03** | Filtragem de Tags | Ao selecionar múltiplas tags, o filtro deve funcionar como uma operação "OU" (ex: "blue" + "sport" exibe meias que sejam blue OU sport) |
+| **RN-CTG-03** | Filtragem de Tags | Ao selecionar múltiplas tags, o filtro deve funcionar como uma operação "E" (AND). Tratamento de Exceção: Se a combinação de filtros resultar em zero produtos, o sistema deve exibir uma mensagem clara: "Nenhum produto encontrado com essas especificações" e, opcionalmente, sugerir limpar os filtros. Exemplo: Selecionar "blue" + "sport" deve retornar apenas produtos que possuam ambas as tags simultaneamente. |
 
 ---
 
@@ -137,11 +143,35 @@ O Sock Shop é um e-commerce especializado na venda de meias de alta qualidade. 
 ---
 
 #### 3.2.3 Identidade
+
+##### 3.2.3.1 Cadastro
+
 | ID | Título | Descrição |
 | :--- | :--- | :--- |
-| **RN-IDEN-01** | Unicidade de Cadastro| Não é permitido cadastrar dois usuários com o mesmo e-mail. O sistema deve retornar mensagem amigável ("E-mail já cadastrado").|
-| **RN-IDEN-02** | Mascaramento de Dados | A API de retorno de dados do usuário (GET /customers/{id}) nunca deve retornar a senha (nem hash) ou os dados completos do cartão de crédito salvo (apenas os últimos 4 dígitos). |
-| **RN-IDEN-03** | Sessão Stateless | A autenticação deve ocorrer via Token (JWT). O sistema não deve depender de session sticky no servidor, permitindo que qualquer instância do serviço de usuário valide a requisição. |
+| **RN-CAD-01** | Unicidade de Cadastro| Não é permitido cadastrar dois usuários com o mesmo e-mail. O sistema deve retornar mensagem amigável ("E-mail já cadastrado").|
+| **RN-CAD-02** | Campos Obrigatórios | O cadastro não pode ser processado se qualquer um dos campos obrigatórios (Nome, Sobrenome, E-mail, Senha) estiver vazio (null) ou contiver apenas espaços em branco (trim().length == 0). O sistema deve retornar o erro: "Todos os campos são obrigatórios." |
+| **RN-CAD-03** | Limites de Caracteres (Boundary) | Nome/Sobrenome: Mínimo de 2 e Máximo de 40 caracteres.  Senha: Mínimo de 8 e Máximo de 100 caracteres (para permitir passphrases). Tentativas fora desses limites devem ser bloqueadas com mensagem informativa. |
+| **RN-CAD-04** | Sanitização de Nome | Os campos "Nome" e "Sobrenome" não devem aceitar caracteres numéricos ou símbolos especiais (ex: @, !, #), exceto apóstrofos ou hifens usados em nomes compostos. Isso evita injeção de scripts e nomes inválidos. |
+| **RN-CAD-05** | Validação de Formato de E-mail | O campo E-mail deve ser validado via Regex padrão (RFC 5322) antes do envio. E-mails sem @, sem domínio (ex: .com) ou com caracteres inválidos devem ser rejeitados imediatamente. |
+| **RN-CAD-06** | Complexidade de Senha | A senha deve atender aos seguintes critérios cumulativos: Mínimo de 8 caracteres, mínimo de 1 letra maiúscula, minimo de 1 letra minúscula, mínimo de 1 número e mínimo de 1 caractere especial (ex: !@#$%^&*). |
+| **RN-CAD-07** | Confirmação de Senha | No fluxo de cadastro, o campo "Confirmar Senha" é obrigatório. O sistema deve validar se Senha e Confirmar Senha são idênticos (case-sensitive). Se divergirem, o botão de "Cadastrar" deve permanecer desabilitado ou exibir erro imediato. |
+| **RN-CAD-08** | Higiene de Credencial | A senha não pode conter partes do nome ou e-mail do usuário (ex: se o usuário é "Joao", a senha "Joao123!" deve ser rejeitada). Isso evita ataques básicos de dicionário direcionados. |
+| **RN-CAD-09** | Status de Conta "Pendente" | Ao completar o cadastro, a conta do usuário deve ser criada com status UNVERIFIED. O login não deve ser permitido (o token JWT não deve ser emitido) enquanto o status não for alterado para ACTIVE. O usuário deve ser redirecionado para a tela de "Digitar Código". |
+| **RN-CAD-10** | Geração e Formato do Código (OTP) | O sistema deve gerar um código numérico aleatório de 6 dígitos (ex: 492013) e enviá-lo para o e-mail cadastrado. Este código é de uso único (One-Time Password). |
+| **RN-CAD-11** | Higiene de Credencial | A senha não pode conter partes do nome ou e-mail do usuário (ex: se o usuário é "Joao", a senha "Joao123!" deve ser rejeitada). Isso evita ataques básicos de dicionário direcionados. |
+| **RN-CAD-12** | Expiração do Código (TTL) | O código de verificação deve ter validade de 15 minutos. Após esse tempo, se o usuário tentar validar, o sistema deve informar "Código expirado" e oferecer a opção de reenviar um novo código. |
+| **RN-CAD-13** | Rate Limit de Reenvio | Para evitar spam e custos de disparos de e-mail, o botão "Reenviar Código" só pode ser acionado a cada 60 segundos. |
+| **RN-CAD-14** | Tentativas Falhas | Após 3 tentativas incorretas de inserção do código para o mesmo token de sessão, o código atual deve ser invalidado automaticamente, forçando o usuário a solicitar um novo envio. |
+
+
+
+##### 3.2.3.2 Login
+
+| ID | Título | Descrição |
+| :--- | :--- | :--- |
+| **RN-LOG-01** | Mascaramento de Dados | A API de retorno de dados do usuário (GET /customers/{id}) nunca deve retornar a senha (nem hash) ou os dados completos do cartão de crédito salvo (apenas os últimos 4 dígitos). |
+| **RN-LOG-02** | Sessão Stateless | A autenticação deve ocorrer via Token (JWT). O sistema não deve depender de session sticky no servidor, permitindo que qualquer instância do serviço de usuário valide a requisição. |
+| **RN-LOG-03** | Bloqueio de Força Bruta | Após 5 tentativas consecutivas de login falhas (errar a senha) para o mesmo e-mail, a conta deve ser temporariamente bloqueada por 15 minutos ou exigir um desafio extra (CAPTCHA) na próxima tentativa. |
 
 ---
 
