@@ -156,14 +156,6 @@ O Sock Shop é um e-commerce especializado na venda de meias de alta qualidade. 
 | **RN-CAD-06** | Complexidade de Senha | A senha deve atender aos seguintes critérios cumulativos: Mínimo de 8 caracteres, mínimo de 1 letra maiúscula, minimo de 1 letra minúscula, mínimo de 1 número e mínimo de 1 caractere especial (ex: !@#$%^&*). |
 | **RN-CAD-07** | Confirmação de Senha | No fluxo de cadastro, o campo "Confirmar Senha" é obrigatório. O sistema deve validar se Senha e Confirmar Senha são idênticos (case-sensitive). Se divergirem, o botão de "Cadastrar" deve permanecer desabilitado ou exibir erro imediato. |
 | **RN-CAD-08** | Higiene de Credencial | A senha não pode conter partes do nome ou e-mail do usuário (ex: se o usuário é "Joao", a senha "Joao123!" deve ser rejeitada). Isso evita ataques básicos de dicionário direcionados. |
-| **RN-CAD-09** | Status de Conta "Pendente" | Ao completar o cadastro, a conta do usuário deve ser criada com status UNVERIFIED. O login não deve ser permitido (o token JWT não deve ser emitido) enquanto o status não for alterado para ACTIVE. O usuário deve ser redirecionado para a tela de "Digitar Código". |
-| **RN-CAD-10** | Geração e Formato do Código (OTP) | O sistema deve gerar um código numérico aleatório de 6 dígitos (ex: 492013) e enviá-lo para o e-mail cadastrado. Este código é de uso único (One-Time Password). |
-| **RN-CAD-11** | Higiene de Credencial | A senha não pode conter partes do nome ou e-mail do usuário (ex: se o usuário é "Joao", a senha "Joao123!" deve ser rejeitada). Isso evita ataques básicos de dicionário direcionados. |
-| **RN-CAD-12** | Expiração do Código (TTL) | O código de verificação deve ter validade de 15 minutos. Após esse tempo, se o usuário tentar validar, o sistema deve informar "Código expirado" e oferecer a opção de reenviar um novo código. |
-| **RN-CAD-13** | Rate Limit de Reenvio | Para evitar spam e custos de disparos de e-mail, o botão "Reenviar Código" só pode ser acionado a cada 60 segundos. |
-| **RN-CAD-14** | Tentativas Falhas | Após 3 tentativas incorretas de inserção do código para o mesmo token de sessão, o código atual deve ser invalidado automaticamente, forçando o usuário a solicitar um novo envio. |
-
-
 
 ##### 3.2.3.2 Login
 
@@ -172,6 +164,11 @@ O Sock Shop é um e-commerce especializado na venda de meias de alta qualidade. 
 | **RN-LOG-01** | Mascaramento de Dados | A API de retorno de dados do usuário (GET /customers/{id}) nunca deve retornar a senha (nem hash) ou os dados completos do cartão de crédito salvo (apenas os últimos 4 dígitos). |
 | **RN-LOG-02** | Sessão Stateless | A autenticação deve ocorrer via Token (JWT). O sistema não deve depender de session sticky no servidor, permitindo que qualquer instância do serviço de usuário valide a requisição. |
 | **RN-LOG-03** | Bloqueio de Força Bruta | Após 5 tentativas consecutivas de login falhas (errar a senha) para o mesmo e-mail, a conta deve ser temporariamente bloqueada por 15 minutos ou exigir um desafio extra (CAPTCHA) na próxima tentativa. |
+| **RN-LOG-04** | Status de Conta "Pendente" | Ao completar o cadastro, a conta do usuário deve ser criada com status UNVERIFIED. O login não deve ser permitido (o token JWT não deve ser emitido) enquanto o status não for alterado para ACTIVE. O usuário deve ser redirecionado para a tela de "Digitar Código". |
+| **RN-LOG-05** | Geração e Formato do Código (OTP) | O sistema deve gerar um código numérico aleatório de 6 dígitos (ex: 492013) e enviá-lo para o e-mail cadastrado. Este código é de uso único (One-Time Password). |
+| **RN-LOG-06** | Expiração do Código (TTL) | O código de verificação deve ter validade de 15 minutos. Após esse tempo, se o usuário tentar validar, o sistema deve informar "Código expirado" e oferecer a opção de reenviar um novo código. |
+| **RN-LOG-07** | Rate Limit de Reenvio | Para evitar spam e custos de disparos de e-mail, o botão "Reenviar Código" só pode ser acionado a cada 60 segundos. |
+| **RN-LOG-08** | Tentativas Falhas | Após 3 tentativas incorretas de inserção do código para o mesmo token de sessão, o código atual deve ser invalidado automaticamente, forçando o usuário a solicitar um novo envio. |
 
 ---
 
